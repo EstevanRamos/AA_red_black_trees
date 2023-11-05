@@ -5,13 +5,14 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "searchtrees.h"
+#include "searchtrees.c"
 
 #define LINE_BUFFER_LEN    ((size_t) 4096)
 
-static void error_no_mem() {
-  fprintf(stderr, "Error: no memory left.\n");
-  exit(1);
-}
+// static void error_no_mem() {
+//   fprintf(stderr, "Error: no memory left.\n");
+//   exit(1);
+// }
 
 static void input_string(char str[], size_t n) {
   char c;
@@ -60,7 +61,8 @@ static void *copy_string(void *ptr) {
 
   new_str = calloc(len, sizeof(char));
   if (new_str == NULL) {
-    error_no_mem();
+    fprintf(stderr, "Error: no memory left.\n");
+    exit(1);
   }
 
   strcpy(new_str, str);

@@ -17,21 +17,20 @@ struct __search_tree_struct_t {
 
 #include "searchtrees.h"
 
-static void error_no_mem() {
-  fprintf(stderr, "Error: no memory left.\n");
-  exit(1);
-}
+// static void error_no_mem() {
+//   fprintf(stderr, "Error: no memory left.\n");
+//   exit(1);
+// }
 
 search_tree_t search_tree_create() {
   search_tree_t tree;
 
   tree = calloc(1, sizeof(*tree));
   if (tree == NULL) {
-    error_no_mem();
+    fprintf(stderr, "Error: no memory left.\n");
+    exit(1);
   }
-
   tree->root = NULL;
-
   return tree;
 }
 
@@ -253,7 +252,8 @@ static tree_node_t __search_tree_insert_aux(void *key,
 
   new_node = calloc(1, sizeof(*new_node));
   if (new_node == NULL) {
-    error_no_mem();
+    fprintf(stderr, "Error: no memory left.\n");
+    exit(1);
   }
 
   new_node->key = copy_key(key, data);

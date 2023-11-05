@@ -44,10 +44,6 @@ void red_black_tree_delete(red_black_tree_t tree,
                            void *data) {
 }
 
-size_t red_black_tree_number_entries(red_black_tree_t tree) {
-  __red_black_tree_number_entries_aux(tree->root);
-}
-
 static size_t __red_black_tree_number_entries_aux(tree_node_t node){
   size_t l, r, n;
   if(node == NULL) return ((size_t) 0);
@@ -59,6 +55,10 @@ static size_t __red_black_tree_number_entries_aux(tree_node_t node){
   return n;
 }
 
+size_t red_black_tree_number_entries(red_black_tree_t tree) {
+  __red_black_tree_number_entries_aux(tree->root);
+}
+
 size_t red_black_tree_height(red_black_tree_t tree) {
   return __red_black_tree_height_aux(tree->root);
 }
@@ -68,8 +68,8 @@ static size_t __red_black_tree_height_aux(red_black_tree_t node){
 
   if (node == NULL) return ((size_t) 0);
 
-  l = __search_tree_height_aux(node->left);
-  r = __search_tree_height_aux(node->right);
+  l = __search_tree_height_aux(node->root->left);
+  r = __search_tree_height_aux(node->root->right);
 
   h = ((l > r) ? l : r) + ((size_t) 1);
 
@@ -252,12 +252,90 @@ void red_black_tree_insert(red_black_tree_t tree,
       y->right = z;
     }
   }
-  
-
 }
-static __red_black_tree_insert_fix(){
 
+static void left_rotate(red_black_tree_t tree, tree_node_t x) {
+    tree_node_t y = x->right;
+    x->right = y->left;
+    if (y->left != NULL) {
+        y->left->parent = x;
+    }
+    y->parent = x->parent;
+    if (x->parent == NULL) {
+        tree->root = y;
+    } else if (x == x->parent->left) {
+        x->parent->left = y;
+    } else {
+        x->parent->right = y;
+    }
+    y->left = x;
+    x->parent = y;
 }
+
+static void right_rotate(red_black_tree_t tree, tree_node_t y) {
+    tree_node_t x = y->left;
+    y->left = x->right;
+    if (x->right != NULL) {
+        x->right->parent = y;
+    }
+    x->parent = y->parent;
+    if (y->parent == NULL) {
+        tree->root = x;
+    } else if (y == y->parent->left) {
+        y->parent->left = x;
+    } else {
+        y->parent->right = x;
+    }
+    x->right = y;
+    y->parent = x;
+}
+
+static void __red_black_tree_insert_fix(red_black_tree_t tree, tree_node_t z) {
+    while (z != tree->root && z->parent->color == RED_BLACK_TREE_COLOR_RED) {
+        if (z->parent == z->parent->parent->left) {
+            tree_node_t y = z->parent->parent->right;
+            if (y != NULL && y->color == RED_BLACK_TREE_COLOR_RED) {
+                // red uncle
+                z->parent->color = RED_BLACK_TREE_COLOR_BLACK;
+                y->color = RED_BLACK_TREE_COLOR_BLACK;
+                z->parent->parent->color = RED_BLACK_TREE_COLOR_RED;
+                z = z->parent->parent;
+            } else {
+                if (z == z->parent->right) {
+                    // black uncle, z is on right side
+                    z = z->parent;
+                    left_rotate(tree, z);
+                }
+                // black uncle, z is on left side
+                z->parent->color = RED_BLACK_TREE_COLOR_BLACK;
+                z->parent->parent->color = RED_BLACK_TREE_COLOR_RED;
+                right_rotate(tree, z->parent->parent);
+            }
+        } else {
+            // same for right side
+            tree_node_t y = z->parent->parent->left;
+            if (y != NULL && y->color == RED_BLACK_TREE_COLOR_RED) {
+                // red uncle
+                z->parent->color = RED_BLACK_TREE_COLOR_BLACK;
+                y->color = RED_BLACK_TREE_COLOR_BLACK;
+                z->parent->parent->color = RED_BLACK_TREE_COLOR_RED;
+                z = z->parent->parent;
+            } else {
+                if (z == z->parent->left) {
+                    // black uncle, z is on left
+                    z = z->parent;
+                    right_rotate(tree, z);
+                }
+                // black uncle, z is on right
+                z->parent->color = RED_BLACK_TREE_COLOR_BLACK;
+                z->parent->parent->color = RED_BLACK_TREE_COLOR_RED;
+                left_rotate(tree, z->parent->parent);
+            }
+        }
+    }
+    tree->root->color = RED_BLACK_TREE_COLOR_BLACK;
+}
+
 
 static tree_node_t __red_black_tree_insert_aux(void *key,
                                             void *value,
