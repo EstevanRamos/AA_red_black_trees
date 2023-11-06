@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 
 # Read the data from the CSV files
+#INSETIONS
 search_data = pd.read_csv('SearchTrees/BST_tree_data.csv')
 rb_data = pd.read_csv('RedBlackTrees/RB_tree_data.csv')
 

@@ -19,11 +19,6 @@ struct __search_tree_struct_t
 
 #include "searchtrees.h"
 
-// static void error_no_mem() {
-//   fprintf(stderr, "Error: no memory left.\n");
-//   exit(1);
-// }
-
 search_tree_t search_tree_create()
 {
   search_tree_t tree;

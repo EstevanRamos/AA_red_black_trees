@@ -431,6 +431,136 @@ static void right_rotate(red_black_tree_t tree, tree_node_t y)
   y->parent = x;
 }
 
+static void __red_black_tree_transplant(red_black_tree_t tree, tree_node_t u, tree_node_t v)
+{
+  if (u->parent == NULL)
+  {
+    // If u is the root node, update the root of the tree.
+    tree->root = v;
+  }
+  else if (u == u->parent->left)
+  {
+    // If u is a left child, replace u with v as the left child of u's parent.
+    u->parent->left = v;
+  }
+  else
+  {
+    // If u is a right child, replace u with v as the right child of u's parent.
+    u->parent->right = v;
+  }
+
+  if (v != NULL)
+  {
+    // Update the parent of v if v is not NULL.
+    v->parent = u->parent;
+  }
+}
+
+static void __red_black_tree_remove_fix(red_black_tree_t tree, tree_node_t x, tree_node_t x_parent)
+{
+  tree_node_t sibling;
+
+  while (x != tree->root && (x == NULL || x->color == RED_BLACK_TREE_COLOR_BLACK))
+  {
+    if (x == x_parent->left)
+    {
+      sibling = x_parent->right;
+
+      if (sibling->color == RED_BLACK_TREE_COLOR_RED)
+      {
+        // Case 1: x's sibling is red.
+        sibling->color = RED_BLACK_TREE_COLOR_BLACK;
+        x_parent->color = RED_BLACK_TREE_COLOR_RED;
+        left_rotate(tree, x_parent);
+        sibling = x_parent->right;
+      }
+
+      if ((sibling->left == NULL || sibling->left->color == RED_BLACK_TREE_COLOR_BLACK) &&
+          (sibling->right == NULL || sibling->right->color == RED_BLACK_TREE_COLOR_BLACK))
+      {
+        // Case 2: x's sibling is black, and both of sibling's children are black.
+        sibling->color = RED_BLACK_TREE_COLOR_RED;
+        x = x_parent;
+        x_parent = x->parent;
+      }
+      else
+      {
+        if (sibling->right == NULL || sibling->right->color == RED_BLACK_TREE_COLOR_BLACK)
+        {
+          // Case 3: x's sibling is black, sibling's left child is red, and right child is black.
+          sibling->left->color = RED_BLACK_TREE_COLOR_BLACK;
+          sibling->color = RED_BLACK_TREE_COLOR_RED;
+          right_rotate(tree, sibling);
+          sibling = x_parent->right;
+        }
+
+        // Case 4: x's sibling is black, sibling's right child is red.
+        sibling->color = x_parent->color;
+        x_parent->color = RED_BLACK_TREE_COLOR_BLACK;
+        sibling->right->color = RED_BLACK_TREE_COLOR_BLACK;
+        left_rotate(tree, x_parent);
+        x = tree->root; // Terminate the loop.
+      }
+    }
+    else
+    {
+      sibling = x_parent->left;
+
+      if (sibling->color == RED_BLACK_TREE_COLOR_RED)
+      {
+        // Case 1: x's sibling is red.
+        sibling->color = RED_BLACK_TREE_COLOR_BLACK;
+        x_parent->color = RED_BLACK_TREE_COLOR_RED;
+        right_rotate(tree, x_parent);
+        sibling = x_parent->left;
+      }
+
+      if ((sibling->right == NULL || sibling->right->color == RED_BLACK_TREE_COLOR_BLACK) &&
+          (sibling->left == NULL || sibling->left->color == RED_BLACK_TREE_COLOR_BLACK))
+      {
+        // Case 2: x's sibling is black, and both of sibling's children are black.
+        sibling->color = RED_BLACK_TREE_COLOR_RED;
+        x = x_parent;
+        x_parent = x->parent;
+      }
+      else
+      {
+        if (sibling->left == NULL || sibling->left->color == RED_BLACK_TREE_COLOR_BLACK)
+        {
+          // Case 3: x's sibling is black, sibling's right child is red, and left child is black.
+          sibling->right->color = RED_BLACK_TREE_COLOR_BLACK;
+          sibling->color = RED_BLACK_TREE_COLOR_RED;
+          left_rotate(tree, sibling);
+          sibling = x_parent->left;
+        }
+
+        // Case 4: x's sibling is black, sibling's left child is red.
+        sibling->color = x_parent->color;
+        x_parent->color = RED_BLACK_TREE_COLOR_BLACK;
+        sibling->left->color = RED_BLACK_TREE_COLOR_BLACK;
+        right_rotate(tree, x_parent);
+        x = tree->root; // Terminate the loop.
+      }
+    }
+  }
+
+  if (x != NULL)
+    x->color = RED_BLACK_TREE_COLOR_BLACK;
+}
+
+tree_node_t __red_black_tree_minimum(tree_node_t node)
+{
+  if (node == NULL)
+    return NULL;
+
+  while (node->left != NULL)
+  {
+    node = node->left;
+  }
+
+  return node;
+}
+
 void red_black_tree_remove(red_black_tree_t tree,
                            void *key,
                            int (*compare_key)(void *, void *, void *),
@@ -438,5 +568,51 @@ void red_black_tree_remove(red_black_tree_t tree,
                            void (*delete_value)(void *, void *),
                            void *data)
 {
-  // STUB
+  tree_node_t z = __red_black_tree_search_aux(tree->root, key, compare_key, data);
+  if (z == NULL)
+    return; // Node not found.
+
+  tree_node_t y = z;
+  tree_node_t x;
+  color_t y_original_color = y->color;
+
+  if (z->left == NULL)
+  {
+    x = z->right;
+    __red_black_tree_transplant(tree, z, z->right);
+  }
+  else if (z->right == NULL)
+  {
+    x = z->left;
+    __red_black_tree_transplant(tree, z, z->left);
+  }
+  else
+  {
+    // Find the minimum node in the right subtree.
+    y = __red_black_tree_minimum(z->right);
+    y_original_color = y->color;
+    x = y->right;
+
+    if (y->parent != z)
+    {
+      // Transplant y with its right child.
+      __red_black_tree_transplant(tree, y, y->right);
+      y->right = z->right;
+      y->right->parent = y;
+    }
+
+    // Transplant z with y.
+    __red_black_tree_transplant(tree, z, y);
+    y->left = z->left;
+    y->left->parent = y;
+    y->color = z->color;
+  }
+
+  if (y_original_color == RED_BLACK_TREE_COLOR_BLACK)
+    __red_black_tree_remove_fix(tree, x, y->parent);
+
+  // Delete the node and its associated data.
+  delete_key(z->key, data);
+  delete_value(z->value, data);
+  free(z);
 }
