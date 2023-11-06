@@ -54,15 +54,8 @@ int main()
     }
     printf("Finished inserting values. Starting deletions...\n");
 
-    // Open the CSV file for writing
     FILE *csv_file = fopen("RB_tree_data_removal.csv", "w");
-    if (csv_file == NULL)
-    {
-        perror("Error opening CSV file");
-        return 1; // Error handling
-    }
 
-    // Write the CSV header
     fprintf(csv_file, "Number of Entries,Tree Height\n");
 
     for (int i = 0; i < NUM_VALUES; i++)
@@ -73,7 +66,6 @@ int main()
         fprintf(csv_file, "%zu,%zu\n", numValues, height);
     }
 
-    // Close the CSV file
     fclose(csv_file);
 
     red_black_tree_delete(tree, free, free, NULL);

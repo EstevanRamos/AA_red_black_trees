@@ -9,10 +9,6 @@
 
 #define LINE_BUFFER_LEN ((size_t)4096)
 
-// static void error_no_mem() {
-//   fprintf(stderr, "Error: no memory left.\n");
-//   exit(1);
-// }
 
 static void input_string(char str[], size_t n)
 {

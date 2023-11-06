@@ -48,7 +48,7 @@ int main()
 
     FILE *outputFile = fopen("BST_tree_data.csv", "w");
 
-    fprintf(outputFile, "Number of Entries,Tree Height\n"); // CSV header
+    fprintf(outputFile, "Number of Entries,Tree Height\n");
 
     for (int i = 0; i < NUM_VALUES; i++)
     {

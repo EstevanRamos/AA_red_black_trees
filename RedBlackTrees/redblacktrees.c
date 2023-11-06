@@ -26,11 +26,6 @@ struct __red_black_tree_struct_t
 
 #include "redblacktrees.h"
 
-// static void error_no_mem() {
-//   fprintf(stderr, "Error: no memory left.\n");
-//   exit(1);
-// }
-
 red_black_tree_t red_black_tree_create()
 {
   red_black_tree_t tree;
@@ -77,7 +72,7 @@ static tree_node_t __red_black_tree_search_aux(tree_node_t node,
 {
   int cmp;
   if (node == NULL)
-    return NULL; // base case
+    return NULL;
   cmp = compare_key(key, node->key, data);
   if (cmp == 0)
     return node;
@@ -241,7 +236,7 @@ static tree_node_t __red_black_tree_insert_aux(void *key,
   new_node->value = copy_value(value, data);
   new_node->color = RED_BLACK_TREE_COLOR_RED;
   new_node->parent = NULL;
-  new_node->left = NULL; // Initialize left and right pointers
+  new_node->left = NULL;
   new_node->right = NULL;
 
   return new_node;
@@ -499,7 +494,7 @@ static void __red_black_tree_remove_fix(red_black_tree_t tree, tree_node_t x, tr
         x_parent->color = RED_BLACK_TREE_COLOR_BLACK;
         sibling->right->color = RED_BLACK_TREE_COLOR_BLACK;
         left_rotate(tree, x_parent);
-        x = tree->root; // Terminate the loop.
+        x = tree->root;
       }
     }
     else
@@ -539,7 +534,7 @@ static void __red_black_tree_remove_fix(red_black_tree_t tree, tree_node_t x, tr
         x_parent->color = RED_BLACK_TREE_COLOR_BLACK;
         sibling->left->color = RED_BLACK_TREE_COLOR_BLACK;
         right_rotate(tree, x_parent);
-        x = tree->root; // Terminate the loop.
+        x = tree->root;
       }
     }
   }
@@ -570,7 +565,7 @@ void red_black_tree_remove(red_black_tree_t tree,
 {
   tree_node_t z = __red_black_tree_search_aux(tree->root, key, compare_key, data);
   if (z == NULL)
-    return; // Node not found.
+    return;
 
   tree_node_t y = z;
   tree_node_t x;
@@ -611,7 +606,6 @@ void red_black_tree_remove(red_black_tree_t tree,
   if (y_original_color == RED_BLACK_TREE_COLOR_BLACK)
     __red_black_tree_remove_fix(tree, x, y->parent);
 
-  // Delete the node and its associated data.
   delete_key(z->key, data);
   delete_value(z->value, data);
   free(z);

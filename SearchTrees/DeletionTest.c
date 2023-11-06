@@ -38,7 +38,6 @@ static void *copy_value(void *value, void *data)
     return new_value;
 }
 
-
 int main()
 {
     search_tree_t tree = search_tree_create();
@@ -53,13 +52,7 @@ int main()
     }
     printf("Finished inserting values. Starting deletions...\n");
 
-    // Open the CSV file for writing
     FILE *csv_file = fopen("BST_tree_data_removal.csv", "w");
-    if (csv_file == NULL)
-    {
-        perror("Error opening CSV file");
-        return 1; // Error handling
-    }
 
     fprintf(csv_file, "Number of Entries,Tree Height\n");
 
@@ -71,7 +64,6 @@ int main()
         fprintf(csv_file, "%zu,%zu\n", numValues, height);
     }
 
-    // Close the CSV file
     fclose(csv_file);
 
     search_tree_delete(tree, free, free, NULL);
