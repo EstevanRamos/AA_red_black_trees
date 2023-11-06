@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-typedef struct __red_black_tree_struct_t * red_black_tree_t;
+typedef struct __red_black_tree_struct_t *red_black_tree_t;
 
 /* Creates an empty red-black tree */
 red_black_tree_t red_black_tree_create();
@@ -22,7 +22,6 @@ void red_black_tree_delete(red_black_tree_t tree,
 
 */
 size_t red_black_tree_number_entries(red_black_tree_t tree);
-
 
 /* Returns the height of a red-black tree
 
@@ -138,7 +137,5 @@ void red_black_tree_remove(red_black_tree_t tree,
                            void (*delete_key)(void *, void *),
                            void (*delete_value)(void *, void *),
                            void *data);
-
-
 
 #endif
